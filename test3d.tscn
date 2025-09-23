@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://dbh0dabnmtfmf"]
+
+[ext_resource type="Script" uid="uid://b2b2ibtfg1at" path="res://node_3d.gd" id="1_vf330"]
+
+[node name="Node3D" type="Node3D"]
+script = ExtResource("1_vf330")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(0.959594, 0.281387, 0, -0.281387, 0.959594, 0, 0, 0, 1, -0.167325, -0.180199, 0.203585)
