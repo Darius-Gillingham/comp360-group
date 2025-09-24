@@ -1,11 +1,24 @@
-[gd_scene load_steps=2 format=3 uid="uid://dbh0dabnmtfmf"]
+[gd_scene load_steps=4 format=3 uid="uid://dbh0dabnmtfmf"]
 
 [ext_resource type="Script" uid="uid://b2b2ibtfg1at" path="res://node_3d.gd" id="1_vf330"]
+[ext_resource type="Script" uid="uid://dehpav7dbf08b" path="res://camera_movement.gd" id="2_wcuis"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_vf330"]
 
 [node name="Node3D" type="Node3D"]
 script = ExtResource("1_vf330")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 
-[node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(0.959594, 0.281387, 0, -0.281387, 0.959594, 0, 0, 0, 1, -0.167325, -0.180199, 0.203585)
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
+transform = Transform3D(6.3810635, 0, 0, 0, 0.045171738, 0, 0, 0, 2.5970929, -0.1892873, 0, 0)
+mesh = SubResource("BoxMesh_vf330")
+
+[node name="Node3D" type="Node3D" parent="."]
+script = ExtResource("2_wcuis")
+
+[node name="Camera3D" type="Camera3D" parent="Node3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.020912632, 0.024341583, 2.7805874)
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
