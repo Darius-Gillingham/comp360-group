@@ -47,3 +47,8 @@ func _process(delta):
 		camera.translate(transform.basis.z * camera_move_speed * delta)
 	elif Input.is_key_pressed(KEY_W):
 		camera.translate(-transform.basis.z * camera_move_speed * delta)
+	
+	if Input.is_action_pressed("Sprint"): #added sprint function to move faster if desired
+		camera_move_speed = 10
+	else:
+		camera_move_speed = 3

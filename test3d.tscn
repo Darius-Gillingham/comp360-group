@@ -1,10 +1,13 @@
-[gd_scene load_steps=5 format=3 uid="uid://dbh0dabnmtfmf"]
+[gd_scene load_steps=6 format=3 uid="uid://dbh0dabnmtfmf"]
 
 [ext_resource type="Script" uid="uid://b2b2ibtfg1at" path="res://node_3d.gd" id="1_vf330"]
 [ext_resource type="Script" uid="uid://dehpav7dbf08b" path="res://camera_movement.gd" id="2_wcuis"]
 [ext_resource type="Script" uid="uid://bb85xdge3elfh" path="res://surface.gd" id="3_pboeg"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_vf330"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pboeg"]
+albedo_color = Color(0.3882353, 1, 0.25882354, 1)
 
 [node name="Node3D" type="Node3D"]
 script = ExtResource("1_vf330")
@@ -20,6 +23,7 @@ visible = false
 transform = Transform3D(6.3810635, 0, 0, 0, 0.045171738, 0, 0, 0, 2.5970929, -0.1892873, -0.41258, 0)
 visible = false
 mesh = SubResource("BoxMesh_vf330")
+surface_material_override/0 = SubResource("StandardMaterial3D_pboeg")
 
 [node name="Node3D" type="Node3D" parent="."]
 script = ExtResource("2_wcuis")
