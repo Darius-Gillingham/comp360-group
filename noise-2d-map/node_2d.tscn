@@ -1,0 +1,58 @@
+[gd_scene load_steps=7 format=3 uid="uid://d1qk1vnolveyp"]
+
+[ext_resource type="Texture2D" uid="uid://6ierbf7oc200" path="res://tiles.png" id="1_0e48y"]
+[ext_resource type="Script" uid="uid://b18433h2448cc" path="res://node_2d.gd" id="1_epypp"]
+[ext_resource type="Script" uid="uid://ddb5ytkejh65" path="res://camera_2d.gd" id="2_0hol4"]
+[ext_resource type="Script" uid="uid://dyu4r5vbgyv8p" path="res://tile_map.gd" id="2_epypp"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_0hol4"]
+texture = ExtResource("1_0e48y")
+0:0/0 = 0
+0:0/0/modulate = Color(0.8819366, 0.8819366, 0.88193655, 1)
+1:0/0 = 0
+1:0/0/modulate = Color(0.8819366, 0.8819366, 0.88193655, 1)
+2:0/0 = 0
+3:0/0 = 0
+0:1/0 = 0
+0:1/0/modulate = Color(0.8819366, 0.8819366, 0.88193655, 1)
+1:1/0 = 0
+1:1/0/modulate = Color(0.8819366, 0.8819366, 0.88193655, 1)
+2:1/0 = 0
+3:1/0 = 0
+0:2/0 = 0
+1:2/0 = 0
+2:2/0 = 0
+3:2/0 = 0
+0:3/0 = 0
+1:3/0 = 0
+2:3/0 = 0
+3:3/0 = 0
+0:4/0 = 0
+0:4/0/modulate = Color(0.8819366, 0.8819366, 0.88193655, 1)
+1:4/0 = 0
+1:4/0/modulate = Color(0.8819366, 0.8819366, 0.88193655, 1)
+2:4/0 = 0
+3:4/0 = 0
+0:5/0 = 0
+0:5/0/modulate = Color(0.8819366, 0.8819366, 0.88193655, 1)
+1:5/0 = 0
+1:5/0/modulate = Color(0.8819366, 0.8819366, 0.88193655, 1)
+2:5/0 = 0
+3:5/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_q6r6c"]
+sources/0 = SubResource("TileSetAtlasSource_0hol4")
+
+[node name="Node2D" type="Node2D"]
+script = ExtResource("1_epypp")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+anchor_mode = 0
+position_smoothing_enabled = true
+script = ExtResource("2_0hol4")
+
+[node name="TileMap" type="TileMap" parent="."]
+position = Vector2(-750, -500)
+tile_set = SubResource("TileSet_q6r6c")
+format = 2
+script = ExtResource("2_epypp")
