@@ -9,16 +9,27 @@ extends Node3D
 
 
 func _ready():
+	var img_noise = generate_FNL_Noise(size) #generate noise image
+	var text_img = create_texture(img_noise)
+	var texture = ImageTexture.create_from_image(text_img)
 	
 	#randomize()
 	#_generate_peaks()
 	
 	var mesh_instance = MeshInstance3D.new() #create mesh
 	var mat = StandardMaterial3D.new() #create material for mesh
-	#mat.cull_mode = BaseMaterial3D.CULL_DISABLED 
-	mat.albedo_color = Color(0.314, 0.784, 0.216, 1.0) #set color to green
+	mesh_instance.material_override = mat
 	
-	var img_noise = generate_FNL_Noise(size) #generate noise image
+	mesh_instance.material_override.albedo_texture = texture
+	
+	
+	#mat.cull_mode = BaseMaterial3D.CULL_DISABLED 
+	#mat.albedo_color = Color(0.314, 0.784, 0.216, 1.0) #set color to green
+	
+	
+	
+	
+	mat.albedo_texture = texture
 	mesh_instance.mesh = generate_grid_slow(size,.25, img_noise) #generate quad mesh with FNl image
 	mesh_instance.material_override = mat #set Mesh's material
 	add_child(mesh_instance) #add mesh to world
@@ -45,14 +56,19 @@ func generate_grid_slow(size, spacing, FNL): #creates size x size grid of points
 			#var h2 = get_height(x+1, y+1)
 			#var h3 = get_height(x, y+1)
 			
+			var u0 = x / float(size-1)
+			var vu0= y/ float(size-1)
+			var u1 = (x+1) / float(size-1)
+			var vu1 = (y+1) / float(size-1)
+			
 			#random heights applied
-			st.set_uv(Vector2(0,0))
+			st.set_uv(Vector2(u0,vu0))
 			st.add_vertex(Vector3(x*spacing,h0 , y*spacing)) #V0
-			st.set_uv(Vector2(1,0))
+			st.set_uv(Vector2(u1,vu0))
 			st.add_vertex(Vector3((x+1)*spacing, h1, y*spacing)) #V1
-			st.set_uv(Vector2(1,1))
+			st.set_uv(Vector2(u1,vu1))
 			st.add_vertex(Vector3((x+1)*spacing, h2, (y+1)*spacing)) #V2
-			st.set_uv(Vector2(0,1))
+			st.set_uv(Vector2(u0,vu1))
 			st.add_vertex(Vector3(x*spacing, h3, (y+1)*spacing)) #V3
 			
 			var v0 = vertex_count
@@ -104,7 +120,7 @@ func generate_FNL_Noise(size): #Generates the noise map, this can be heavily twe
 	noise.fractal_gain = 0.5
 
 	var img =  noise.get_seamless_image(size,size)
-	save_png(img)
+	save_png(img, "res://debug_noise.png")
 	
 	return img
 
@@ -112,10 +128,24 @@ func get_FNL_Height(x,y, FNL): #takes each pixel, finds the grayscale value [-1,
 	var tone = FNL.get_pixel(x,y)
 	var toneVal = tone.r
 	return (toneVal * 2.0 - 1.0) * amplitude
+
+func create_texture(FNL):
+	var texture = Image.create_empty(size,size, false, Image.FORMAT_RGBA8)
+	for x in range(size):
+		for y in range(size):
+			var tone = FNL.get_pixel(x,y)
+			if (.75 <= tone.r) and (tone.r < 1):
+				texture.set_pixel(x,y, Color(1.0, 1.0, 1.0, 1.0))
+			elif (.25 <= tone.r) and (tone.r < .75):
+				texture.set_pixel(x,y, Color(0.389, 0.389, 0.389, 1.0))
+			else:
+				texture.set_pixel(x,y, Color(0.0, 0.961, 0.0, 1.0))
+	save_png(texture, "res://textMap.png")
+	return texture
 	
-func save_png(img): #saves FNL png for comparison after
+func save_png(img, path): #saves FNL png for comparison after
 	# Save PNG for debugging (res:// saves into your project folder)
-	var save_path = "res://debug_noise.png"
+	var save_path = path
 	var err = img.save_png(save_path)
 	if err == OK:
 		print("Noise saved to ", save_path)
