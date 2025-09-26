@@ -1,17 +1,35 @@
-[gd_scene load_steps=7 format=3 uid="uid://dbh0dabnmtfmf"]
+[gd_scene load_steps=10 format=3 uid="uid://dbh0dabnmtfmf"]
 
 [ext_resource type="Script" uid="uid://b2b2ibtfg1at" path="res://node_3d.gd" id="1_vf330"]
-[ext_resource type="Texture2D" uid="uid://ds5bj0d7n4vxk" path="res://textMap.png" id="2_gpqof"]
 [ext_resource type="Script" uid="uid://dehpav7dbf08b" path="res://camera_movement.gd" id="2_wcuis"]
 [ext_resource type="Script" uid="uid://bb85xdge3elfh" path="res://surface.gd" id="3_pboeg"]
 
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_pboeg"]
+sky_top_color = Color(0.28168696, 0.40513057, 0.8478719, 1)
+sky_horizon_color = Color(0.6069095, 0.63002044, 0.7317058, 1)
+ground_horizon_color = Color(0.6069095, 0.63002044, 0.7317058, 1)
+energy_multiplier = 1.1
+
+[sub_resource type="Sky" id="Sky_gpqof"]
+sky_material = SubResource("ProceduralSkyMaterial_pboeg")
+
+[sub_resource type="Environment" id="Environment_jbh6y"]
+background_mode = 2
+sky = SubResource("Sky_gpqof")
+glow_enabled = true
+
 [sub_resource type="BoxMesh" id="BoxMesh_vf330"]
 
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_pboeg"]
+
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jbh6y"]
-albedo_texture = ExtResource("2_gpqof")
+albedo_texture = SubResource("CompressedTexture2D_pboeg")
 
 [node name="Node3D" type="Node3D"]
 script = ExtResource("1_vf330")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_jbh6y")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 12.958458, 9.051016, 9.069332)
@@ -34,3 +52,4 @@ transform = Transform3D(-4.28189e-08, 0.20104373, -0.97958225, 8.7879e-09, 0.979
 
 [node name="Surface" type="Node3D" parent="."]
 script = ExtResource("3_pboeg")
+size = 256

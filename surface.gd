@@ -1,8 +1,8 @@
 extends Node3D
 
 #variables determining how peaks are generated
-@export var size:int = 256
-@export var spacing:float = 0.25
+@export var size:int = 1024
+@export var spacing:float = 1
 #@export var num_peaks:int = 64
 @export var amplitude:float = 5
 #var peaks = []
@@ -12,10 +12,8 @@ func _ready():
 	var img_noise = generate_FNL_Noise(size) #generate noise image
 	var text_img = create_texture(img_noise)
 	var texture = ImageTexture.create_from_image(text_img)
-	
 	#randomize()
 	#_generate_peaks()
-	
 	var mesh_instance = MeshInstance3D.new() #create mesh
 	var mat = StandardMaterial3D.new() #create material for mesh
 	mesh_instance.material_override = mat
@@ -25,9 +23,6 @@ func _ready():
 	
 	#mat.cull_mode = BaseMaterial3D.CULL_DISABLED 
 	#mat.albedo_color = Color(0.314, 0.784, 0.216, 1.0) #set color to green
-	
-	
-	
 	
 	mat.albedo_texture = texture
 	mesh_instance.mesh = generate_grid_slow(size,.25, img_noise) #generate quad mesh with FNl image
@@ -139,7 +134,7 @@ func create_texture(FNL):
 			elif (.25 <= tone.r) and (tone.r < .75):
 				texture.set_pixel(x,y, Color(0.389, 0.389, 0.389, 1.0))
 			else:
-				texture.set_pixel(x,y, Color(0.0, 0.961, 0.0, 1.0))
+				texture.set_pixel(x,y, Color(0.0, 0.188, 1.0, 1.0))
 	save_png(texture, "res://textMap.png")
 	return texture
 	
