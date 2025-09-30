@@ -125,18 +125,104 @@ func get_FNL_Height(x,y, FNL): #takes each pixel, finds the grayscale value [-1,
 	return (toneVal * 2.0 - 1.0) * amplitude
 
 func create_texture(FNL):
-	var texture = Image.create_empty(size,size, false, Image.FORMAT_RGBA8)
+	var texture = Image.create_empty(size, size, false, Image.FORMAT_RGBA8)
+	var rng = RandomNumberGenerator.new()
+	rng.randomize()
+
+	# --- Base terrain coloring pass ---
 	for x in range(size):
 		for y in range(size):
-			var tone = FNL.get_pixel(x,y)
-			if (.75 <= tone.r) and (tone.r < 1):
-				texture.set_pixel(x,y, Color(1.0, 1.0, 1.0, 1.0))
-			elif (.25 <= tone.r) and (tone.r < .75):
-				texture.set_pixel(x,y, Color(0.389, 0.389, 0.389, 1.0))
+			var tone = FNL.get_pixel(x, y)
+			var t = tone.r
+
+			if (0.75 <= t and t < 1.0):
+				# high = snow (white)
+				texture.set_pixel(x, y, Color(1.0, 1.0, 1.0, 1.0))
+
+			elif (0.60 <= t and t < 0.75):
+				# foothills below snow = grey
+				texture.set_pixel(x, y, Color(0.535, 0.646, 0.673, 1.0))
+
+			elif (0.20 <= t and t < 0.75):
+				# middle zone = mostly grey, but green dominates in lower middle
+				if (0.35 <= t and t < 0.6):
+					# ~80% green, 20% variation
+					var roll = rng.randf()
+					if roll < 0.8:
+						texture.set_pixel(x, y, Color(0.0, 0.472, 0.162, 1.0)) # green
+					elif roll < 0.9:
+						texture.set_pixel(x, y, Color(0.201, 0.541, 0.332, 1.0)) # same green again
+					else:
+						texture.set_pixel(x, y, Color(0.219, 0.583, 0.347, 1.0)) # olive green
+				else:
+					
+					texture.set_pixel(x, y, Color(0.0, 0.392, 0.152, 1.0))
+
 			else:
-				texture.set_pixel(x,y, Color(0.0, 0.188, 1.0, 1.0))
+				# low = water (blue)
+				texture.set_pixel(x, y, Color(0.0, 0.188, 1.0, 1.0))
+
+	# --- Stream generation pass (nested inside create_texture) ---
+	var num_streams = 20
+	var stream_starts = []
+
+	# collect shoreline pixels
+	for x in range(1, size - 1):
+		for y in range(1, size - 1):
+			var t = FNL.get_pixel(x, y).r
+			if t < 0.20:
+				# check neighbors for land
+				for dx in [-1, 0, 1]:
+					for dy in [-1, 0, 1]:
+						if dx == 0 and dy == 0:
+							continue
+						var nt = FNL.get_pixel(x + dx, y + dy).r
+						if nt >= 0.20:
+							stream_starts.append(Vector2i(x, y))
+							break
+
+	# pick random stream starts from shoreline
+	stream_starts.shuffle()
+	stream_starts = stream_starts.slice(0, min(num_streams, stream_starts.size()))
+
+	for start in stream_starts:
+		var x = start.x
+		var y = start.y
+		var length = rng.randi_range(30, 100) # stream length
+
+		for step in range(length):
+			# mark stream pixel
+			texture.set_pixel(x, y, Color(0.0, 0.0, 0.7, 1.0)) # dark blue stream
+
+			# pick next step uphill
+			var best_pos = Vector2i(x, y)
+			var best_height = -1.0
+
+			for dx in [-1, 0, 1]:
+				for dy in [-1, 0, 1]:
+					if dx == 0 and dy == 0:
+						continue
+					var nx = clamp(x + dx, 0, size - 1)
+					var ny = clamp(y + dy, 0, size - 1)
+					var nh = FNL.get_pixel(nx, ny).r
+					if nh > best_height and nh < 0.8: # stop before snow
+						best_height = nh
+						best_pos = Vector2i(nx, ny)
+
+			# if we can't go higher, stop
+			if best_pos == Vector2i(x, y):
+				break
+
+			# move to next position
+			x = best_pos.x
+			y = best_pos.y
+
+
 	save_png(texture, "res://textMap.png")
 	return texture
+
+
+
 	
 func save_png(img, path): #saves FNL png for comparison after
 	# Save PNG for debugging (res:// saves into your project folder)
