@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://deoi4c81sn4m2"
-path="res://.godot/imported/textMap.png-c5084b910f56be26780df40d0717b56a.ctex"
+uid="uid://2ks4un3yjxk8"
+path="res://.godot/imported/textMap_BASIC.png-b00a1f9170ba5c5f6171c4b5d29fe2c6.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://textMap.png"
-dest_files=["res://.godot/imported/textMap.png-c5084b910f56be26780df40d0717b56a.ctex"]
+source_file="res://textMap_BASIC.png"
+dest_files=["res://.godot/imported/textMap_BASIC.png-b00a1f9170ba5c5f6171c4b5d29fe2c6.ctex"]
 
 [params]
 

@@ -2,7 +2,11 @@
 
 importer="texture"
 type="CompressedTexture2D"
+<<<<<<< Updated upstream
 uid="uid://b2hwwxvr3cxce"
+=======
+uid="uid://cqsntruig1cju"
+>>>>>>> Stashed changes
 path="res://.godot/imported/textMap_DUNE.png-6ed5eeafdb76240dcdfd42b5614edcc0.ctex"
 metadata={
 "vram_texture": false
