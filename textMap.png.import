@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://clb67ifftpx5"
-path="res://.godot/imported/textMap_DUNE.png-6ed5eeafdb76240dcdfd42b5614edcc0.ctex"
+uid="uid://l855xb4w8ugc"
+path="res://.godot/imported/textMap.png-c5084b910f56be26780df40d0717b56a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://textMap_DUNE.png"
-dest_files=["res://.godot/imported/textMap_DUNE.png-6ed5eeafdb76240dcdfd42b5614edcc0.ctex"]
+source_file="res://textMap.png"
+dest_files=["res://.godot/imported/textMap.png-c5084b910f56be26780df40d0717b56a.ctex"]
 
 [params]
 
