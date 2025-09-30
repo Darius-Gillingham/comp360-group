@@ -4,11 +4,14 @@ extends Node3D
 @export var size:int = 1024
 @export var spacing:float = 1
 #@export var num_peaks:int = 64
-#@export var amplitude:float = 4
-#var peaks = []
+@export var amplitude:float = 5
+@export var biome = ["Forest", "Alpine","Dunes"]
+
 
 
 func _ready():
+	
+	
 	#var img_noise = generate_FNL_Noise(size) #generate noise image
 	var img_noise = generate_dune_Noise(size)
 	var text_img = create_dune_texture(img_noise)
@@ -30,8 +33,12 @@ func _ready():
 	mesh_instance.mesh = generate_grid_slow(size,.25, img_noise) #generate quad mesh with FNl image
 	mesh_instance.material_override = mat #set Mesh's material
 	add_child(mesh_instance) #add mesh to world
-	pass
 	
+	
+	pass
+
+
+
 func generate_grid_slow(size, spacing, FNL): #creates size x size grid of points at heights calculated in get_FNL_Height
 	var st = SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
@@ -120,21 +127,21 @@ func generate_dune_Noise(size): #Generates the dune noise map, this can be heavi
 
 	var img =  dune_noise.get_seamless_image(size,size)
 	save_png(img, "res://debug_noise.png")
-	
 	return img
 
 func get_FNL_Height(x,y, FNL): #takes each pixel, finds the grayscale value [-1,1] and multiplies by amplitude to increase/decrease elevation 
-	var dune_amplitude := 3.5   # amplitude is now local to this function
+	if biome[2] == "Dunes":
+		amplitude = 3.5
 	var dune_tone = FNL.get_pixel(x,y)
 	var dune_toneVal = dune_tone.r
-	return (dune_toneVal * 3.5 - 1.0) * dune_amplitude
+	return (dune_toneVal * 3.5 - 1.0) * amplitude
 
 func create_dune_texture(FNL):
 	var dune_texture = Image.create_empty(size,size, false, Image.FORMAT_RGBA8)
 	for x in range(size):
 		for y in range(size):
 			var dune_tone = FNL.get_pixel(x,y)
-			if (.75 <= dune_tone.r) and (dune_tone.r < 1):
+			if (.75 <= dune_tone.r) and (dune_tone.r <= 1):
 				dune_texture.set_pixel(x,y, Color(0.988, 0.741, 0.463, 1.0)) # dune peak (highest)
 			elif (.25 <= dune_tone.r) and (dune_tone.r < .75):
 				dune_texture.set_pixel(x,y, Color(0.886, 0.62, 0.365, 1.0)) # dune middle
