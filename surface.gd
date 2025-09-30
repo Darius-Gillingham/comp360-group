@@ -29,6 +29,11 @@ func _ready():
 	mesh_instance.material_override = mat #set Mesh's material
 	add_child(mesh_instance) #add mesh to world
 	add_bushes(img_noise, 0.25)
+	add_water_plane()
+
+
+
+	
 	pass
 	
 func generate_grid_slow(size, spacing, FNL): #creates size x size grid of points at heights calculated in get_FNL_Height
@@ -291,6 +296,34 @@ func add_bushes(FNL, spacing: float):
 
 		add_child(bush_root)
 
+
+
+func add_water_plane():
+	var water_height = (0.20 * 2.0 - 1.0) * amplitude  # water threshold
+
+	var plane = PlaneMesh.new()
+	plane.size = Vector2((size - 1) * spacing/4, (size - 1) * spacing/4)
+
+	var water = MeshInstance3D.new()
+	water.mesh = plane
+
+
+
+	# Put origin at bottom-left instead of center
+	water.position = Vector3(((size - 1) * spacing/4) , water_height, ((size - 1) * spacing/4) )
+
+	# Offset so the plane covers 0 → size*spacing in world space
+	water.translate(Vector3(-plane.size.x / 2.0, 0, -plane.size.y / 2.0))
+
+	# Material
+	var mat = StandardMaterial3D.new()
+	mat.albedo_color = Color(0.0, 0.2, 1.0, 0.5)
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.flags_transparent = true
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+
+	water.material_override = mat
+	add_child(water)
 
 
 
