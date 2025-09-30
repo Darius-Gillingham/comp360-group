@@ -4,27 +4,29 @@ extends Node3D
 @export var size:int = 1024
 @export var spacing:float = 1
 #@export var num_peaks:int = 64
-@export var amplitude:float = 5
+#@export var amplitude:float = 4
 #var peaks = []
 
 
 func _ready():
-	var img_noise = generate_FNL_Noise(size) #generate noise image
-	var text_img = create_texture(img_noise)
-	var texture = ImageTexture.create_from_image(text_img)
+	#var img_noise = generate_FNL_Noise(size) #generate noise image
+	var img_noise = generate_dune_Noise(size)
+	var text_img = create_dune_texture(img_noise)
+	#var text_img = create_texture(img_noise)
+	var dune_texture = ImageTexture.create_from_image(text_img)
 	#randomize()
 	#_generate_peaks()
 	var mesh_instance = MeshInstance3D.new() #create mesh
 	var mat = StandardMaterial3D.new() #create material for mesh
 	mesh_instance.material_override = mat
 	
-	mesh_instance.material_override.albedo_texture = texture
+	mesh_instance.material_override.albedo_texture = dune_texture
 	
 	
 	#mat.cull_mode = BaseMaterial3D.CULL_DISABLED 
 	#mat.albedo_color = Color(0.314, 0.784, 0.216, 1.0) #set color to green
 	
-	mat.albedo_texture = texture
+	mat.albedo_texture = dune_texture
 	mesh_instance.mesh = generate_grid_slow(size,.25, img_noise) #generate quad mesh with FNl image
 	mesh_instance.material_override = mat #set Mesh's material
 	add_child(mesh_instance) #add mesh to world
@@ -107,36 +109,41 @@ func generate_grid_slow(size, spacing, FNL): #creates size x size grid of points
 		#weighted_height += peak["h"] * w
 	#return weighted_height / total_weight
 
-func generate_FNL_Noise(size): #Generates the noise map, this can be heavily tweaked to get ideal look for water or mountians etc
-	var noise = FastNoiseLite.new()
-	noise.noise_type = FastNoiseLite.TYPE_SIMPLEX
-	noise.fractal_type = FastNoiseLite.FRACTAL_FBM
-	noise.fractal_octaves = 5
-	noise.fractal_gain = 0.5
+func generate_dune_Noise(size): #Generates the dune noise map, this can be heavily tweaked to get ideal look for water or mountians etc
+	
+	var dune_noise = FastNoiseLite.new()
+	dune_noise.noise_type = FastNoiseLite.TYPE_PERLIN
+	dune_noise.fractal_type = FastNoiseLite.FRACTAL_FBM
+	dune_noise.fractal_octaves = 1.3
+	dune_noise.frequency = .02
+	dune_noise.fractal_gain = .3
 
-	var img =  noise.get_seamless_image(size,size)
+	var img =  dune_noise.get_seamless_image(size,size)
 	save_png(img, "res://debug_noise.png")
 	
 	return img
 
 func get_FNL_Height(x,y, FNL): #takes each pixel, finds the grayscale value [-1,1] and multiplies by amplitude to increase/decrease elevation 
-	var tone = FNL.get_pixel(x,y)
-	var toneVal = tone.r
-	return (toneVal * 2.0 - 1.0) * amplitude
+	var dune_amplitude := 3.5   # amplitude is now local to this function
+	var dune_tone = FNL.get_pixel(x,y)
+	var dune_toneVal = dune_tone.r
+	return (dune_toneVal * 3.5 - 1.0) * dune_amplitude
 
-func create_texture(FNL):
-	var texture = Image.create_empty(size,size, false, Image.FORMAT_RGBA8)
+func create_dune_texture(FNL):
+	var dune_texture = Image.create_empty(size,size, false, Image.FORMAT_RGBA8)
 	for x in range(size):
 		for y in range(size):
-			var tone = FNL.get_pixel(x,y)
-			if (.75 <= tone.r) and (tone.r < 1):
-				texture.set_pixel(x,y, Color(1.0, 1.0, 1.0, 1.0))
-			elif (.25 <= tone.r) and (tone.r < .75):
-				texture.set_pixel(x,y, Color(0.389, 0.389, 0.389, 1.0))
+			var dune_tone = FNL.get_pixel(x,y)
+			if (.75 <= dune_tone.r) and (dune_tone.r < 1):
+				dune_texture.set_pixel(x,y, Color(0.988, 0.741, 0.463, 1.0)) # dune peak (highest)
+			elif (.25 <= dune_tone.r) and (dune_tone.r < .75):
+				dune_texture.set_pixel(x,y, Color(0.886, 0.62, 0.365, 1.0)) # dune middle
+			elif (.15 <= dune_tone.r) and (dune_tone.r < .25):
+				dune_texture.set_pixel(x,y, Color(0.773, 0.522, 0.31, 1.0)) # dune lower
 			else:
-				texture.set_pixel(x,y, Color(0.0, 0.188, 1.0, 1.0))
-	save_png(texture, "res://textMap.png")
-	return texture
+				dune_texture.set_pixel(x,y, Color(0.18, 0.302, 0.529, 1.0)) # oasis (lowest)
+	save_png(dune_texture, "res://textMap_DUNE.png")
+	return dune_texture
 	
 func save_png(img, path): #saves FNL png for comparison after
 	# Save PNG for debugging (res:// saves into your project folder)
