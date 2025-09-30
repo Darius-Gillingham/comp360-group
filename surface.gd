@@ -28,6 +28,7 @@ func _ready():
 	mesh_instance.mesh = generate_grid_slow(size,.25, img_noise) #generate quad mesh with FNl image
 	mesh_instance.material_override = mat #set Mesh's material
 	add_child(mesh_instance) #add mesh to world
+	add_bushes(img_noise, 0.25)
 	pass
 	
 func generate_grid_slow(size, spacing, FNL): #creates size x size grid of points at heights calculated in get_FNL_Height
@@ -220,6 +221,80 @@ func create_texture(FNL):
 
 	save_png(texture, "res://textMap.png")
 	return texture
+	
+
+
+func add_bushes(FNL, spacing: float):
+	var rng = RandomNumberGenerator.new()
+	rng.randomize()
+
+	# --- Generate a circular green alpha-texture ---
+	var leaf_size = 48
+	var noise = FastNoiseLite.new()
+	noise.noise_type = FastNoiseLite.TYPE_SIMPLEX
+	noise.fractal_type = FastNoiseLite.FRACTAL_FBM
+	noise.fractal_octaves = 3
+	noise.fractal_gain = 0.5
+
+	var leaf_img = Image.create(leaf_size, leaf_size, false, Image.FORMAT_RGBA8)
+	for x in range(leaf_size):
+		for y in range(leaf_size):
+			var dx = (x - leaf_size / 2) / float(leaf_size / 2)
+			var dy = (y - leaf_size / 2) / float(leaf_size / 2)
+			var dist = sqrt(dx * dx + dy * dy)
+
+			if dist > 1.0:
+				leaf_img.set_pixel(x, y, Color(0, 0, 0, 0)) # fully transparent outside circle
+			else:
+				# 50% chance of being clear, 50% chance opaque green
+				if rng.randf() < 0.75:
+					leaf_img.set_pixel(x, y, Color(0, 0, 0, 0)) # no pixel at all (clear)
+				else:
+					leaf_img.set_pixel(x, y, Color(0.0, 0.485, 0.043, 1.0)) # fully opaque green
+
+	var leaf_tex = ImageTexture.create_from_image(leaf_img)
+
+	# --- Material with proper transparency ---
+	var mat = StandardMaterial3D.new()
+	mat.albedo_texture = leaf_tex
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.flags_transparent = true
+	mat.alpha_scissor_threshold = 0.1   # removes hard white edges
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+
+	# --- Mesh for leaves ---
+	var quad = QuadMesh.new()
+	quad.size = Vector2(2, 2)
+
+	# --- Scatter bushes on terrain ---
+	for i in range(500):
+		var x = rng.randi_range(0, size - 1)
+		var y = rng.randi_range(0, size - 1)
+		var t = FNL.get_pixel(x, y).r
+		if t < 0.35 or t >= 0.6:
+			continue
+
+		var bush_root = Node3D.new()
+		var h = get_FNL_Height(x, y, FNL)
+		bush_root.position = Vector3(x * spacing, h, y * spacing)
+
+		var s = rng.randf_range(0.6, 1.6)
+		bush_root.scale = Vector3(s, s, s)
+
+		# Add 16 rotated planes
+		for j in range(16):
+			var leaf = MeshInstance3D.new()
+			leaf.mesh = quad
+			leaf.material_override = mat
+			leaf.rotation.y = j * (TAU / 16.0)
+			bush_root.add_child(leaf)
+
+		add_child(bush_root)
+
+
+
+
+
 
 
 
