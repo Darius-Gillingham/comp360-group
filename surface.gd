@@ -26,9 +26,10 @@ func _ready():
 		mat.albedo_texture = texture
 		mesh_instance.mesh = generate_grid_slow(size,spacing, img_noise)
 	elif biome == "Alpine":
-		amplitude = 3 #desired amplitude for your biome
-		var img_noise = generate_dune_Noise(size) #Your biomes noise func
-		var text_img = create_dune_texture(img_noise) #Your biomes texture func
+		#Meant to look more like Ice Spikes, like the biome from Minecraft.
+		amplitude = 10 
+		var img_noise = generate_alpine_Noise(size) 
+		var text_img = create_alpine_texture(img_noise) 
 		var texture = ImageTexture.create_from_image(text_img)
 		mat.albedo_texture = texture
 		mesh_instance.mesh = generate_grid_slow(size,spacing, img_noise)
@@ -128,7 +129,17 @@ func generate_dune_Noise(size): #Generates the dune noise map, this can be heavi
 func generate_forest_Noise(size):
 	pass
 func generate_alpine_Noise(size):
-	pass
+	var noise = FastNoiseLite.new()
+	noise.noise_type = FastNoiseLite.TYPE_SIMPLEX
+	noise.fractal_type = FastNoiseLite.FRACTAL_RIDGED
+	noise.fractal_octaves = 9
+	noise.fractal_gain = 0.5
+
+	var img =  noise.get_seamless_image(size,size)
+	save_png(img, "res://debug_noise.png")
+	
+	return img
+
 func generate_FNL_Noise(size):
 	var noise = FastNoiseLite.new()
 	noise.noise_type = FastNoiseLite.TYPE_SIMPLEX
@@ -158,7 +169,26 @@ func create_dune_texture(FNL):
 func create_forest_texture(FNL):
 	pass
 func create_alpine_texture(FNL):
-	pass
+	var texture = Image.create_empty(size,size, false, Image.FORMAT_RGBA8)
+	for x in range(size):
+		for y in range(size):
+			var tone = FNL.get_pixel(x,y).r
+			if tone < 0.166:
+				texture.set_pixel(x,y, Color(0.0, 0.0, 0.3, 1.0)) # deep dark blue
+			elif tone < 0.333:
+				texture.set_pixel(x,y, Color(0.0, 0.1, 0.5, 1.0)) # dark blue
+			elif tone < 0.5:
+				texture.set_pixel(x,y, Color(0.0, 0.3, 0.7, 1.0)) # medium blue
+			elif tone < 0.666:
+				texture.set_pixel(x,y, Color(0.4, 0.6, 0.9, 1.0)) # light icy blue
+			elif tone < 0.833:
+				texture.set_pixel(x,y, Color(0.8, 0.85, 0.9, 1.0)) # frosty gray-white
+			else:
+				texture.set_pixel(x,y, Color(1.0, 1.0, 1.0, 1.0)) # bright white
+				
+	save_png(texture, "res://textMap.png")
+	return texture
+
 func create_texture(FNL):
 	pass
 
