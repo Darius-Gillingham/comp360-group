@@ -21,14 +21,13 @@ func _ready():
 		mesh_instance.mesh = generate_grid_slow(size,spacing, img_noise)
 		
 	elif biome == "Forest":
-		amplitude = 2  # desired amplitude for your biome
-		var img_noise = generate_forest_Noise(size)  # forest noise function
-		var text_img = create_forest_texture(img_noise)  # forest texture function
+		amplitude = 2
+		var img_noise = generate_forest_Noise(size)
+		var text_img = create_forest_texture(img_noise)
 		var texture = ImageTexture.create_from_image(text_img)
 		mat.albedo_texture = texture
 		mesh_instance.mesh = generate_grid_slow(size, spacing, img_noise)
 		add_child(mesh_instance)
-
 		add_bushes(img_noise, spacing, Color(0.0, 0.336, 0.038, 1.0))
 		
 
@@ -64,13 +63,14 @@ func _ready():
 		var texture = ImageTexture.create_from_image(text_img)
 		mat.albedo_texture = texture
 		mesh_instance.mesh = generate_grid_slow(size,spacing, img_noise)
-	#else: 
-	#	var text_img = create_texture(img_noise)
-		#var texture = ImageTexture.create_from_image(text_img)
-		#mat.albedo_texture = texture
-		#mesh_instance.mesh = generate_grid_slow(size,spacing, img_noise)
-	#add_child(mesh_instance) #add mesh to world
-	#pass
+	else: 
+		var img_noise = generate_FNL_Noise(size)
+		var text_img = create_texture(img_noise)
+		var texture = ImageTexture.create_from_image(text_img)
+		mat.albedo_texture = texture
+		mesh_instance.mesh = generate_grid_slow(size,spacing, img_noise)
+	add_child(mesh_instance) #add mesh to world
+	pass
 
 
 

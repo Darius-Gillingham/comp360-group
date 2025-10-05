@@ -4,7 +4,7 @@
 [ext_resource type="Script" uid="uid://dehpav7dbf08b" path="res://camera_movement.gd" id="2_wcuis"]
 [ext_resource type="Script" uid="uid://bb85xdge3elfh" path="res://surface.gd" id="3_pboeg"]
 [ext_resource type="Texture2D" uid="uid://de6bsqq3yjnej" path="res://tiles.png" id="4_jbh6y"]
-[ext_resource type="Script" uid="uid://b8edknbew1cnd" path="res://tile_map.gd" id="5_yvbjf"]
+[ext_resource type="Script" path="res://tile_map.gd" id="5_yvbjf"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_pboeg"]
 sky_top_color = Color(0.28168696, 0.40513057, 0.8478719, 1)
@@ -85,7 +85,7 @@ transform = Transform3D(-4.28189e-08, 0.20104373, -0.97958225, 8.7879e-09, 0.979
 [node name="Surface" type="Node3D" parent="."]
 script = ExtResource("3_pboeg")
 size = 256
-biome = "Islands_Blocky"
+biome = "Dunes"
 
 [node name="TileMap" type="TileMap" parent="Surface"]
 tile_set = SubResource("TileSet_m1ofj")
