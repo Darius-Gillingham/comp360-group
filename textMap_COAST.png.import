@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dar6ghfmpy1le"
-path="res://.godot/imported/debug_noise.png-9251066462d27b7f6b4ecdeb2ce649d7.ctex"
+uid="uid://cyu23ho28y7pm"
+path="res://.godot/imported/textMap_COAST.png-f0328b45e01db258335af128aa04f28a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://debug_noise.png"
-dest_files=["res://.godot/imported/debug_noise.png-9251066462d27b7f6b4ecdeb2ce649d7.ctex"]
+source_file="res://textMap_COAST.png"
+dest_files=["res://.godot/imported/textMap_COAST.png-f0328b45e01db258335af128aa04f28a.ctex"]
 
 [params]
 

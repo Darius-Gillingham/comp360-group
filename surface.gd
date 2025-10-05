@@ -199,14 +199,14 @@ func create_Coastal_Texture(FNL):
 		for y in range(size):
 			var tone = FNL.get_pixel(x,y)
 			if (.75 <= tone.r) and (tone.r <= 1):
-				texture.set_pixel(x,y, Color(0.309, 0.528, 0.177, 1.0))
+				texture.set_pixel(x,y, Color(0.254, 0.54, 0.091, 1.0))
 			elif (.65 <= tone.r) and (tone.r < .75):
-				texture.set_pixel(x,y, Color(0.491, 0.51, 0.189, 1.0))
-			elif (.15 <= tone.r) and (tone.r < .65):
+				texture.set_pixel(x,y, Color(0.444, 0.529, 0.084, 1.0))
+			elif (.05 <= tone.r) and (tone.r < .65):
 				texture.set_pixel(x,y, Color(0.781, 0.781, 0.781, 1.0))
 			else:
 				texture.set_pixel(x,y, Color(0.035, 0.506, 0.655, 1.0))
-	save_png(texture, "res://textMap.png")
+	save_png(texture, "res://textMap_COAST.png")
 	return texture
 	
 func save_png(img, path): #saves FNL png for comparison after
@@ -221,45 +221,42 @@ func save_png(img, path): #saves FNL png for comparison after
 func generate_Coastal_Water_Noise(size):
 	var noise = FastNoiseLite.new()
 	noise.noise_type = FastNoiseLite.TYPE_PERLIN
-	noise.seed = 1311
+	#noise.seed = 1311
 	noise.frequency = 0.01
 	
 	noise.fractal_type = FastNoiseLite.FRACTAL_FBM
 	noise.fractal_octaves = 2
-	noise.fractal_lacunarity = 1.5
+	noise.fractal_lacunarity = 1.8
 	noise.fractal_gain = 1
-	noise.fractal_weighted_strength = 50
+	noise.fractal_weighted_strength = 25
 	
 	var img =  noise.get_image(size,size,true, false, false)
-	save_png(img, "res://debug_noise.png")
 	
 	return img
 	
 func generate_Coastal_Deform_Noise(size):
 	var noise = FastNoiseLite.new()
 	noise.noise_type = FastNoiseLite.TYPE_PERLIN
-	noise.seed = 1319
 	noise.frequency = 0.01
 	
 	noise.fractal_type = FastNoiseLite.FRACTAL_FBM
 	noise.fractal_octaves = 2
-	noise.fractal_lacunarity = 1.5
+	noise.fractal_lacunarity = 2
 	noise.fractal_gain = 1
 	noise.fractal_weighted_strength = 1
 	
 	var img =  noise.get_image(size,size,true, false, false)
-	save_png(img, "res://debug_noise.png")
 	
 	return img
 	
 func generate_Coastal_Noise(size):
 	var grad = Gradient.new()
 	
-	#grad.set_color(0, Color.GREEN)
-	#grad.set_color(1, Color.BLUE_VIOLET)
+	var black_start_percent = 0.57
+	var white_start_percent = 0.63
 	
-	grad.add_point(0.47, Color.BLACK)
-	grad.add_point(0.53, Color.WHITE)
+	grad.add_point(black_start_percent, Color.BLACK)
+	grad.add_point(white_start_percent, Color.WHITE)
 	
 	var grad_text = GradientTexture2D.new()
 	grad_text.gradient = grad
@@ -267,24 +264,29 @@ func generate_Coastal_Noise(size):
 	grad_text.width = size
 
 	var img =  grad_text.get_image()
-	save_png(img, "res://debug_noise.png")
+	
+	var white_start_pixel = size * white_start_percent
+	var island_add_range_start = white_start_pixel - 120
+	
+	var grey_start_threshold = white_start_pixel - 90
 	
 	var noise = generate_Coastal_Water_Noise(size)
-	for x in range(size):
+	
+	for x in range(island_add_range_start, white_start_pixel):
 		for y in range(size):
-			var color = noise.get_pixel(x,y) + img.get_pixel(x,y)
+			var grey_add = max(-(x - grey_start_threshold), 0) / 30
+			var color = noise.get_pixel(x,y) + img.get_pixel(x,y) - Color(grey_add, grey_add, grey_add, 1.0)
 			#var color = noise.get_pixel(x,y) * noise.get_pixel(x,y) 
-			noise.set_pixel(x,y,color)
+			img.set_pixel(x,y,color)
 			
 	var deform_noise = generate_Coastal_Deform_Noise(size)
 	for x in range(size):
 		for y in range(size):
 			var grey_amount = deform_noise.get_pixel(x,y).r
 			grey_amount *= 0.5
-			var color = noise.get_pixel(x,y) - Color(grey_amount, grey_amount, grey_amount, 1)
+			var color = img.get_pixel(x,y) - Color(grey_amount, grey_amount, grey_amount, 1)
 			#print(color)
 			#var color = noise.get_pixel(x,y) * noise.get_pixel(x,y) 
-			noise.set_pixel(x,y,color)
+			img.set_pixel(x,y,color)
 	
-	return noise
-
+	return img
