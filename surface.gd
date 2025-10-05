@@ -21,16 +21,17 @@ func _ready():
 		mesh_instance.mesh = generate_grid_slow(size,spacing, img_noise)
 		
 	elif biome == "Forest":
-		var forest_noise = FastNoiseLite.new()
-		forest_noise.noise_type = FastNoiseLite.TYPE_SIMPLEX
-		forest_noise.fractal_type = FastNoiseLite.FRACTAL_FBM
-		forest_noise.fractal_octaves = 3
-		forest_noise.frequency = 0.005
-		forest_noise.fractal_gain = 0.4
-		forest_noise.fractal_lacunarity = 1.8
-		var img = forest_noise.get_seamless_image(size, size)
-		save_png(img, "res://debug_noise_FOREST.png")
-		return img
+		amplitude = 2  # desired amplitude for your biome
+		var img_noise = generate_forest_Noise(size)  # forest noise function
+		var text_img = create_forest_texture(img_noise)  # forest texture function
+		var texture = ImageTexture.create_from_image(text_img)
+		mat.albedo_texture = texture
+		mesh_instance.mesh = generate_grid_slow(size, spacing, img_noise)
+		add_child(mesh_instance)
+
+		add_bushes(img_noise, spacing, Color(0.0, 0.336, 0.038, 1.0))
+		
+
 		
 	elif biome == "Alpine":
 		#Meant to look more like Ice Spikes, like the biome from Minecraft.
@@ -63,14 +64,13 @@ func _ready():
 		var texture = ImageTexture.create_from_image(text_img)
 		mat.albedo_texture = texture
 		mesh_instance.mesh = generate_grid_slow(size,spacing, img_noise)
-	else: 
-		var img_noise = generate_FNL_Noise(size)
-		var text_img = create_texture(img_noise)
-		var texture = ImageTexture.create_from_image(text_img)
-		mat.albedo_texture = texture
-		mesh_instance.mesh = generate_grid_slow(size,spacing, img_noise)
-	add_child(mesh_instance) #add mesh to world
-	pass
+	#else: 
+	#	var text_img = create_texture(img_noise)
+		#var texture = ImageTexture.create_from_image(text_img)
+		#mat.albedo_texture = texture
+		#mesh_instance.mesh = generate_grid_slow(size,spacing, img_noise)
+	#add_child(mesh_instance) #add mesh to world
+	#pass
 
 
 
