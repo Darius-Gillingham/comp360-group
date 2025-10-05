@@ -4,7 +4,7 @@ extends Node3D
 @export var size:int = 1024
 @export var spacing:float = .25
 @export var amplitude:float = 5
-@export var biome = "Dunes" #Forest, Alpine, Coast, Dunes
+@export var biome = "Forest" #Forest, Alpine, Coast, Dunes
 
 func _ready():
 	var mesh_instance = MeshInstance3D.new() #create mesh
@@ -18,13 +18,19 @@ func _ready():
 		var texture = ImageTexture.create_from_image(text_img)
 		mat.albedo_texture = texture
 		mesh_instance.mesh = generate_grid_slow(size,spacing, img_noise)
+		
 	elif biome == "Forest":
-		amplitude = 3 #desired amplitude for your biome
-		var img_noise = generate_dune_Noise(size) #Your biomes noise func
-		var text_img = create_dune_texture(img_noise) #Your biomes texture func
-		var texture = ImageTexture.create_from_image(text_img)
-		mat.albedo_texture = texture
-		mesh_instance.mesh = generate_grid_slow(size,spacing, img_noise)
+		var forest_noise = FastNoiseLite.new()
+		forest_noise.noise_type = FastNoiseLite.TYPE_SIMPLEX
+		forest_noise.fractal_type = FastNoiseLite.FRACTAL_FBM
+		forest_noise.fractal_octaves = 3
+		forest_noise.frequency = 0.005
+		forest_noise.fractal_gain = 0.4
+		forest_noise.fractal_lacunarity = 1.8
+		var img = forest_noise.get_seamless_image(size, size)
+		save_png(img, "res://debug_noise_FOREST.png")
+		return img
+		
 	elif biome == "Alpine":
 		#Meant to look more like Ice Spikes, like the biome from Minecraft.
 		amplitude = 10 
@@ -127,7 +133,17 @@ func generate_dune_Noise(size): #Generates the dune noise map, this can be heavi
 	return img
 
 func generate_forest_Noise(size):
-	pass
+	var forest_noise = FastNoiseLite.new()
+	forest_noise.noise_type = FastNoiseLite.TYPE_SIMPLEX 
+	forest_noise.fractal_type = FastNoiseLite.FRACTAL_FBM
+	forest_noise.fractal_octaves = 3
+	forest_noise.frequency = 0.005
+	forest_noise.fractal_gain = 0.4
+	forest_noise.fractal_lacunarity = 1.8 
+	var img = forest_noise.get_seamless_image(size, size)
+	save_png(img, "res://debug_noise_FOREST.png")
+	return img
+	
 func generate_alpine_Noise(size):
 	var noise = FastNoiseLite.new()
 	noise.noise_type = FastNoiseLite.TYPE_SIMPLEX
@@ -167,8 +183,87 @@ func create_dune_texture(FNL):
 				dune_texture.set_pixel(x,y, Color(0.18, 0.302, 0.529, 1.0)) # oasis (lowest)
 	save_png(dune_texture, "res://textMap_DUNE.png")
 	return dune_texture
+	
+	
 func create_forest_texture(FNL):
-	pass
+	var texture = Image.create_empty(size, size, false, Image.FORMAT_RGBA8)
+	var rng = RandomNumberGenerator.new()
+	rng.randomize()
+
+	# --- Terrain coloration ---
+	for x in range(size):
+		for y in range(size):
+			var tone = FNL.get_pixel(x, y).r
+
+			if tone >= 0.75:
+				texture.set_pixel(x, y, Color(1.0, 1.0, 1.0, 1.0)) # snow
+			elif tone >= 0.6:
+				texture.set_pixel(x, y, Color(0.535, 0.646, 0.673, 1.0)) # rocky
+			elif tone >= 0.35:
+				# forest greens
+				var roll = rng.randf()
+				if roll < 0.7:
+					texture.set_pixel(x, y, Color(0.0, 0.45, 0.16, 1.0))
+				elif roll < 0.9:
+					texture.set_pixel(x, y, Color(0.2, 0.55, 0.33, 1.0))
+				else:
+					texture.set_pixel(x, y, Color(0.25, 0.6, 0.35, 1.0))
+			elif tone >= 0.2:
+				texture.set_pixel(x, y, Color(0.0, 0.392, 0.152, 1.0)) # dark forest base
+			else:
+				texture.set_pixel(x, y, Color(0.0, 0.188, 1.0, 1.0)) # water
+
+	# --- Stream generation ---
+	var num_streams = 20
+	var stream_starts = []
+
+	for sx in range(1, size - 1):
+		for sy in range(1, size - 1):
+			var t = FNL.get_pixel(sx, sy).r
+			if t < 0.20:
+				for dx in [-1, 0, 1]:
+					for dy in [-1, 0, 1]:
+						if dx == 0 and dy == 0:
+							continue
+						var nt = FNL.get_pixel(sx + dx, sy + dy).r
+						if nt >= 0.20:
+							stream_starts.append(Vector2i(sx, sy))
+							break
+
+	stream_starts.shuffle()
+	stream_starts = stream_starts.slice(0, min(num_streams, stream_starts.size()))
+
+	for start in stream_starts:
+		var x = start.x
+		var y = start.y
+		var length = rng.randi_range(30, 100)
+
+		for step in range(length):
+			texture.set_pixel(x, y, Color(0.0, 0.0, 0.7, 1.0))
+			var best_pos = Vector2i(x, y)
+			var best_height = -1.0
+
+			for dx in [-1, 0, 1]:
+				for dy in [-1, 0, 1]:
+					if dx == 0 and dy == 0:
+						continue
+					var nx = clamp(x + dx, 0, size - 1)
+					var ny = clamp(y + dy, 0, size - 1)
+					var nh = FNL.get_pixel(nx, ny).r
+					if nh > best_height and nh < 0.8:
+						best_height = nh
+						best_pos = Vector2i(nx, ny)
+
+			if best_pos == Vector2i(x, y):
+				break
+
+			x = best_pos.x
+			y = best_pos.y
+
+	save_png(texture, "res://textMap_FOREST.png")
+	return texture
+
+
 func create_alpine_texture(FNL):
 	var texture = Image.create_empty(size,size, false, Image.FORMAT_RGBA8)
 	for x in range(size):
@@ -290,3 +385,80 @@ func generate_Coastal_Noise(size):
 			img.set_pixel(x,y,color)
 	
 	return img
+	
+	
+func add_bushes(FNL, spacing: float, bush_color: Color):
+	var rng = RandomNumberGenerator.new()
+	rng.randomize()
+
+	# --- Prebuild 4 slight variations of leaf textures ---
+	var leaf_textures = []
+	for k in range(4):
+		var leaf_size = 48
+		var leaf_noise = FastNoiseLite.new()
+		leaf_noise.noise_type = FastNoiseLite.TYPE_SIMPLEX
+		leaf_noise.frequency = 0.12 + k * 0.02
+		leaf_noise.fractal_type = FastNoiseLite.FRACTAL_FBM
+		leaf_noise.fractal_octaves = 3
+		leaf_noise.fractal_gain = 0.45
+
+		var leaf_img = Image.create(leaf_size, leaf_size, false, Image.FORMAT_RGBA8)
+		for lx in range(leaf_size):
+			for ly in range(leaf_size):
+				var dx = (lx - leaf_size / 2.0) / float(leaf_size / 2.0)
+				var dy = (ly - leaf_size / 2.0) / float(leaf_size / 2.0)
+				var dist = sqrt(dx * dx + dy * dy)
+				if dist > 1.0:
+					leaf_img.set_pixel(lx, ly, Color(0, 0, 0, 0))
+					continue
+
+				var n = (leaf_noise.get_noise_2d(lx, ly) + 1.0) * 0.5
+				if n < 0.35:
+					leaf_img.set_pixel(lx, ly, Color(0, 0, 0, 0))
+					continue
+
+				# vary brightness and saturation around bush_color
+				var brightness = lerp(0.4, 1.4, n)
+				var sat_shift = lerp(0.7, 1.3, rng.randf())
+				var r = clamp(bush_color.r * brightness * sat_shift, 0.0, 1.0)
+				var g = clamp(bush_color.g * brightness, 0.0, 1.0)
+				var b = clamp(bush_color.b * brightness / sat_shift, 0.0, 1.0)
+				leaf_img.set_pixel(lx, ly, Color(r, g, b, 1.0))
+
+		var tex = ImageTexture.create_from_image(leaf_img)
+		leaf_textures.append(tex)
+
+	# --- Shared mesh properties ---
+	var quad = QuadMesh.new()
+	quad.size = Vector2(2, 2)
+
+	for i in range(500):
+		var x = rng.randi_range(0, size - 1)
+		var y = rng.randi_range(0, size - 1)
+		var t = FNL.get_pixel(x, y).r
+		if t < 0.35 or t >= 0.6:
+			continue
+
+		var h = get_FNL_Height(x, y, FNL) + amplitude * 0.05  # corrected to sit just above surface
+
+		var bush_root = Node3D.new()
+		bush_root.position = Vector3(x * spacing, h, y * spacing)
+		var s = rng.randf_range(0.8, 1.8)
+		bush_root.scale = Vector3(s, s, s)
+
+		var leaf_tex = leaf_textures[rng.randi_range(0, leaf_textures.size() - 1)]
+		var mat = StandardMaterial3D.new()
+		mat.albedo_texture = leaf_tex
+		mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		mat.flags_transparent = true
+		mat.alpha_scissor_threshold = 0.1
+		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+
+		for j in range(16):
+			var leaf = MeshInstance3D.new()
+			leaf.mesh = quad
+			leaf.material_override = mat
+			leaf.rotation.y = j * (TAU / 16.0)
+			bush_root.add_child(leaf)
+
+		add_child(bush_root)
