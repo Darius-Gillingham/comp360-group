@@ -1,10 +1,9 @@
 extends Node3D
 
-#variables determining how peaks are generated
 @export var size:int = 1024
 @export var spacing:float = .25
 @export var amplitude:float = 5
-@export var biome = "Forest" #Forest, Alpine, Coast, Dunes
+@export var biome = "Forest" #Forest, Alpine, Coast, Dunes, Islands, Islands_Blocky
 @onready var tile_map:TileMap = $TileMap #Used in generate island functions
 
 func _ready():
@@ -21,7 +20,7 @@ func _ready():
 		mesh_instance.mesh = generate_grid_slow(size,spacing, img_noise)
 		
 	elif biome == "Forest":
-		amplitude = 2
+		amplitude = 5
 		var img_noise = generate_forest_Noise(size)
 		var text_img = create_forest_texture(img_noise)
 		var texture = ImageTexture.create_from_image(text_img)

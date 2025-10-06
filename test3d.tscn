@@ -80,12 +80,12 @@ surface_material_override/0 = SubResource("StandardMaterial3D_jbh6y")
 script = ExtResource("2_wcuis")
 
 [node name="Camera3D" type="Camera3D" parent="Node3D"]
-transform = Transform3D(-4.28189e-08, 0.20104373, -0.97958225, 8.7879e-09, 0.97958225, 0.20104373, 1, 0, -4.371139e-08, -2.089839, 1.1094353, 2.5994189)
+transform = Transform3D(-2.8522049e-08, 0.7577814, -0.65250856, 3.312367e-08, 0.65250856, 0.7577814, 1, 0, -4.371138e-08, 22.392757, 25.306137, 24.615562)
 
 [node name="Surface" type="Node3D" parent="."]
 script = ExtResource("3_pboeg")
 size = 256
-biome = "Dunes"
+biome = "Alpine"
 
 [node name="TileMap" type="TileMap" parent="Surface"]
 tile_set = SubResource("TileSet_m1ofj")
