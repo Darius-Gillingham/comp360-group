@@ -28,7 +28,7 @@ func _ready():
 		mesh_instance.mesh = generate_grid_slow(size, spacing, img_noise)
 		add_child(mesh_instance)
 		add_bushes(img_noise, spacing, Color(0.0, 0.336, 0.038, 1.0))
-		
+		add_water_plane()
 
 		
 	elif biome == "Alpine":
@@ -620,3 +620,26 @@ func add_bushes(FNL, spacing: float, bush_color: Color):
 			bush_root.add_child(leaf)
 
 		add_child(bush_root)
+
+
+
+func add_water_plane():
+	var water_height = (0.21 * 2.0 - 0.7) * amplitude  # water threshold
+	
+	var plane = PlaneMesh.new()
+	plane.size = Vector2(size * spacing, size * spacing)
+	
+	var water = MeshInstance3D.new()
+	water.mesh = plane
+	
+	# Align bottom-left corner at (0, 0)
+	water.position = Vector3((size * spacing) / 2.0, water_height, (size * spacing) / 2.0)
+	
+	var mat = StandardMaterial3D.new()
+	mat.albedo_color = Color(0.0, 0.3, 0.7, 0.6)
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.flags_transparent = true
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	
+	water.material_override = mat
+	add_child(water)

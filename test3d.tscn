@@ -85,7 +85,6 @@ transform = Transform3D(-2.8522049e-08, 0.7577814, -0.65250856, 3.312367e-08, 0.
 [node name="Surface" type="Node3D" parent="."]
 script = ExtResource("3_pboeg")
 size = 256
-biome = "Alpine"
 
 [node name="TileMap" type="TileMap" parent="Surface"]
 tile_set = SubResource("TileSet_m1ofj")
